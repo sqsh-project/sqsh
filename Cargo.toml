@@ -1,12 +1,13 @@
 [package]
 name = "sqsh"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Ugur Cayoglu <cayoglu@me.com>"]
 categories = ["compression", "encoding", "algorithms"]
 description = "A library for compression software in Rust with focus on scientific data"
 documentation = "https://docs.rs/sqsh"
 license = "MIT"
+publish = false
 readme = "README.md"
 repository = "https://github.com/ucyo/sqsh"
 
