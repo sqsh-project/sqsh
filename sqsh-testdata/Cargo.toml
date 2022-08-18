@@ -4,7 +4,7 @@ version = "0.1.2"
 edition = "2021"
 description = "Tool to generate testdata for data compression"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/sqsh-project/testdata"
+homepage = "https://docs.rs/sqsh-testdata"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
