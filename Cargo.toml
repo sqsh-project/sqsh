@@ -1,17 +1,4 @@
-[package]
-name = "sqsh"
-version = "0.1.2"
-edition = "2021"
-authors = ["Ugur Cayoglu <cayoglu@me.com>"]
-categories = ["compression", "encoding", "algorithms"]
-description = "A library for compression software in Rust with focus on scientific data"
-documentation = "https://docs.rs/sqsh"
-homepage = "https://sqsh.rs"
-license = "MIT"
-publish = false
-readme = "README.md"
-repository = "https://github.com/sqsh-project/sqsh"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace]
+members = [
+  "sqsh",
+]
