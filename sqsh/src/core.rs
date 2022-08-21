@@ -19,3 +19,12 @@
 //! These three components define the core of the data processing in the
 //! library. The interaction of these components are organised by a `Stream`
 //! object which coordinates the whole interaction.
+
+/// The `Process` trait allows processing bytes from a source and
+/// writing the results to a sink.
+///
+/// Implementor of the `Process` trait are called `processors`.
+pub trait Process {
+  fn process(&mut self, source: &[u8], sink: &mut [u8]) -> Option<usize>;
+  fn finish(&mut self, sink: &mut [u8]);
+}
