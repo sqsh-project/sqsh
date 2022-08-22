@@ -6,6 +6,7 @@
 //! 🤿
 
 pub mod core;
+pub mod processors;
 
 #[cfg(test)]
 mod tests {
