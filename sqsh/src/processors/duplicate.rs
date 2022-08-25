@@ -10,6 +10,12 @@ impl Duplicate {
     }
 }
 
+impl Default for Duplicate {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Process for Duplicate {
     fn process(&mut self, source: &[u8], sink: &mut Vec<u8>) -> IOResult<usize> {
         sink.extend(source);

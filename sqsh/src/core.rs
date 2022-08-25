@@ -82,12 +82,12 @@ impl<B: BufRead, W: Write, P: Process> Stream<B, W, P> {
             consumed += length;
             if length > 0 {
                 self.processor.process(data, &mut self.buffer)?;
-                self.writer.write(&self.buffer)?;
+                self.writer.write_all(&self.buffer)?;
                 self.reader.consume(length);
                 self.buffer.clear()
             } else {
                 self.processor.finish(&mut self.buffer)?;
-                self.writer.write(&self.buffer)?;
+                self.writer.write_all(&self.buffer)?;
                 self.writer.flush()?;
                 break;
             }
