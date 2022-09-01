@@ -2,6 +2,4 @@
 members = [
   "sqsh",
   "sqsh-cli",
-  "sqsh-testdata",
-  "sqsh-benchmark",
 ]
