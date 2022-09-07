@@ -95,3 +95,10 @@ impl<B: BufRead, W: Write, P: Process> Stream<B, W, P> {
         Ok(consumed)
     }
 }
+
+impl<'a, B: BufRead, W: Write, P: Process> Iterator for &'a Stream<B, W, P> {
+    type Item = &'a [u8];
+    fn next(&mut self) -> Option<Self::Item> {
+        unimplemented!()
+    }
+}
