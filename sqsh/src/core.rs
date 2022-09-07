@@ -34,11 +34,11 @@ pub trait Process {
     fn process(&mut self, source: &[u8], sink: &mut Vec<u8>) -> IOResult<usize>;
     /// Finish the processing by outputing possible further data
     fn finish(&mut self, sink: &mut Vec<u8>) -> IOResult<usize>;
+    /// Directly consume the source a Write source
+    fn consume(&mut self, source: &[u8], sink: &mut impl Write) -> IOResult<usize>;
+    /// End the consuming process
+    fn end(&mut self, sink: &mut impl Write) -> IOResult<usize>;
 }
-
-/// Default buffer size for the write buffer
-const WRITE_BUFFER_SIZE: usize = 4_096;
-
 /// Stream consumes the source and writes the output of the
 /// processor to the sink.
 ///
@@ -49,28 +49,15 @@ pub struct Stream<B, W, P> {
     reader: B,
     writer: W,
     processor: P,
-    buffer: Vec<u8>,
 }
 
 impl<B: BufRead, W: Write, P: Process> Stream<B, W, P> {
     /// Create a new Stream object with default buffer size
     pub fn new(reader: B, writer: W, processor: P) -> Self {
-        let buffer = Vec::with_capacity(WRITE_BUFFER_SIZE);
         Stream {
             reader,
             writer,
             processor,
-            buffer,
-        }
-    }
-    /// Create a new Stream object with custom buffer size
-    pub fn with_capacity(reader: B, writer: W, processor: P, capacity: usize) -> Self {
-        let buffer = Vec::with_capacity(capacity);
-        Stream {
-            reader,
-            writer,
-            processor,
-            buffer,
         }
     }
     /// Consume the source and fill the sink
@@ -81,13 +68,13 @@ impl<B: BufRead, W: Write, P: Process> Stream<B, W, P> {
             let length = data.len();
             consumed += length;
             if length > 0 {
-                self.processor.process(data, &mut self.buffer)?;
-                self.writer.write_all(&self.buffer)?;
+                self.processor.consume(data, &mut self.writer)?;
+                // self.writer.write_all(&self.buffer)?;
                 self.reader.consume(length);
-                self.buffer.clear()
+                // self.buffer.clear()
             } else {
-                self.processor.finish(&mut self.buffer)?;
-                self.writer.write_all(&self.buffer)?;
+                self.processor.end(&mut self.writer)?;
+                // self.writer.write_all(&self.buffer)?;
                 self.writer.flush()?;
                 break;
             }

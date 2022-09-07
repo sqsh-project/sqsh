@@ -24,4 +24,13 @@ impl Process for Duplicate {
     fn finish(&mut self, _: &mut Vec<u8>) -> IOResult<usize> {
         Ok(0)
     }
+    fn consume(&mut self, source: &[u8], sink: &mut impl std::io::Write) -> IOResult<usize> {
+        // let mut result = Vec::new();
+        // result.extend(source);
+        sink.write_all(&source)?;
+        Ok(source.len())
+    }
+    fn end(&mut self, _: &mut impl std::io::Write) -> IOResult<usize> {
+        Ok(0)
+    }
 }
