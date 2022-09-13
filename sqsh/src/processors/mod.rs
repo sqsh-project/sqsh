@@ -4,6 +4,7 @@
 //! some output to the sink. All submodules are implementing some kind of
 //! processors which implement the `crate::core::Process` trait.
 mod adler32;
+mod crc32;
 mod duplicate;
 
 // Reexport processors on this level
