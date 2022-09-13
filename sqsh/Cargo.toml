@@ -16,3 +16,4 @@ repository = "https://github.com/sqsh-project/sqsh"
 
 [dependencies]
 log = "0.4.*"
+crc = "1.8.*"

@@ -13,7 +13,7 @@ pub struct Adler32 {
     b: u16,
 }
 
-trait Checksum {
+pub trait Checksum {
     type Output;
 
     fn checksum(&self) -> Self::Output;
