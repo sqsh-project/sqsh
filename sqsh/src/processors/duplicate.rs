@@ -25,3 +25,19 @@ impl Process for Duplicate {
         Ok(0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Duplicate;
+    use crate::core::process::tests::*;
+
+    #[test]
+    fn test_duplication() {
+        test_buffered_process::<Duplicate>("Wikipedia".as_bytes(), "Wikipedia".as_bytes());
+        test_buffered_process::<Duplicate>(
+            "Awesome-string-baby".as_bytes(),
+            "Awesome-string-baby".as_bytes(),
+        );
+        test_buffered_process::<Duplicate>("This is great".as_bytes(), "This is great".as_bytes());
+    }
+}

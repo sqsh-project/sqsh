@@ -2,7 +2,7 @@
 //!
 //! Implementation of the Adler32 checksum algorithm as described
 //! [here](https://en.wikipedia.org/wiki/Adler-32).
-use crate::core::Process;
+use crate::core::{Checksum, Process};
 use log::{debug, info};
 use std::fmt::Display;
 
@@ -11,12 +11,6 @@ use std::fmt::Display;
 pub struct Adler32 {
     a: u16,
     b: u16,
-}
-
-pub trait Checksum {
-    type Output;
-
-    fn checksum(&self) -> Self::Output;
 }
 
 impl Adler32 {
@@ -69,29 +63,8 @@ impl Process for Adler32 {
 
 #[cfg(test)]
 mod tests {
-    use super::{Adler32, Checksum};
-    use crate::core::Process;
-    use std::fmt::{Debug, Display};
-
-    fn assert_checksum<T: PartialEq + Debug, C: Default + Process + Checksum<Output = T>>(
-        source: &[u8],
-        expected: <C as Checksum>::Output,
-    ) {
-        let mut model: C = Default::default();
-        let mut sink = Vec::<u8>::new();
-        model.process(source, &mut sink).expect("Error");
-        assert_eq!(model.checksum(), expected);
-    }
-
-    fn check_debug_format<C: Default + Debug>(expected: &str) {
-        let m: C = Default::default();
-        assert_eq!(format!("{m:?}"), expected)
-    }
-
-    fn check_display_format<C: Default + Display>(expected: &str) {
-        let m: C = Default::default();
-        assert_eq!(format!("{m}"), expected)
-    }
+    use super::*;
+    use crate::core::checksum::tests::*;
 
     #[test]
     fn adler32() {
