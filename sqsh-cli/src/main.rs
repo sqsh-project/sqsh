@@ -1,33 +1,30 @@
 mod cli;
+mod utils;
 use clap::Parser;
-use sqsh::processors::Duplicate;
-use std::{
-    fs::File,
-    io::{BufReader, BufWriter},
-};
+use sqsh::processors::{Adler32, Duplicate, CRC32};
+use utils::{generate_file_stream, generate_output_filename, generate_stdout_stream};
 
 fn main() -> std::io::Result<()> {
     let args = cli::Cli::parse();
     println!("{args:?}");
 
-    let mut stream = match args.command {
+    match args.command {
         cli::Commands::Duplicate { input, output } => {
-            let opath = match output {
+            let output = match output {
                 Some(path) => path,
-                None => {
-                    let mut tmp = input.clone();
-                    tmp.set_extension("raw");
-                    tmp
-                }
+                None => generate_output_filename(input.clone()),
             };
-            let i = File::open(input)?;
-            let o = File::create(opath)?;
-            let bufreader = BufReader::new(i);
-            let writer = BufWriter::new(o);
-            let processor = Duplicate::new();
-            sqsh::core::Stream::new(bufreader, writer, processor)
+            let mut stream = generate_file_stream::<Duplicate>(input, output)?;
+            stream.consume()?;
+        }
+        cli::Commands::Adler32 { input } => {
+            let mut stream = generate_stdout_stream::<Adler32>(input)?;
+            stream.consume()?;
+        }
+        cli::Commands::CRC32 { input } => {
+            let mut stream = generate_stdout_stream::<CRC32>(input)?;
+            stream.consume()?;
         }
     };
-    stream.consume()?;
     Ok(())
 }
