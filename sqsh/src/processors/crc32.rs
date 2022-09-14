@@ -5,7 +5,7 @@ use std::fmt::Display;
 
 use crate::core::{Checksum, Process};
 use crc::{crc32, Hasher32};
-use log::info;
+use log::{info, trace};
 
 /// CRC32 struct to save inner Digest element from `crc32` crate
 pub struct CRC32 {
@@ -40,6 +40,7 @@ impl Display for CRC32 {
 impl Process for CRC32 {
     fn process(&mut self, source: &[u8], _: &mut Vec<u8>) -> std::io::Result<usize> {
         self.a.write(source);
+        trace!("CRC32 Update w/: {source:#?}");
         Ok(source.len())
     }
     fn finish(&mut self, sink: &mut Vec<u8>) -> std::io::Result<usize> {

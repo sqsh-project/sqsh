@@ -1,21 +1,23 @@
 mod cli;
 mod utils;
 use clap::Parser;
+use log::debug;
 use sqsh::processors::{Adler32, Duplicate, CRC32};
-use utils::{generate_file_stream, generate_output_filename, generate_stdout_stream};
+use utils::{generate_file_stream, generate_stdout_stream};
 
 fn main() -> std::io::Result<()> {
     let args = cli::Cli::parse();
-    println!("{args:?}");
+    debug!("{args:?}");
 
     match args.command {
         cli::Commands::Duplicate { input, output } => {
-            let output = match output {
-                Some(path) => path,
-                None => generate_output_filename(input.clone()),
+            if let Some(path) = output {
+                let mut stream = generate_file_stream::<Duplicate>(input, path)?;
+                stream.consume()?;
+            } else {
+                let mut stream = generate_stdout_stream::<Duplicate>(input)?;
+                stream.consume()?;
             };
-            let mut stream = generate_file_stream::<Duplicate>(input, output)?;
-            stream.consume()?;
         }
         cli::Commands::Adler32 { input } => {
             let mut stream = generate_stdout_stream::<Adler32>(input)?;
