@@ -3,16 +3,13 @@
 //! Implementation of the CRC32 checksum algorithm as described [here](https://en.wikipedia.org/wiki/Cyclic_redundancy_check).
 use std::fmt::Display;
 
-// use super::{Checksum, ChecksumError};
-use crate::processors::adler32::Checksum;
+use crate::core::{Checksum, Process};
 use crc::{crc32, Hasher32};
 use log::info;
 
-use crate::core::Process;
-
 /// CRC32 struct to save inner Digest element from `crc32` crate
 pub struct CRC32 {
-    a: crc32::Digest
+    a: crc32::Digest,
 }
 
 impl CRC32 {
@@ -20,7 +17,7 @@ impl CRC32 {
     pub fn new() -> Self {
         info!("New CRC32 checksum created");
         CRC32 {
-            a: crc32::Digest::new(crc32::IEEE)
+            a: crc32::Digest::new(crc32::IEEE),
         }
     }
 }
@@ -60,24 +57,8 @@ impl Checksum for CRC32 {
 
 #[cfg(test)]
 mod tests {
-    use super::{Checksum, CRC32};
-    use crate::core::Process;
-    use std::fmt::{Debug, Display};
-
-    fn assert_checksum<T: PartialEq + Debug, C: Default + Process + Checksum<Output = T>>(
-        source: &[u8],
-        expected: <C as Checksum>::Output,
-    ) {
-        let mut model: C = Default::default();
-        let mut sink = Vec::<u8>::new();
-        model.process(source, &mut sink).expect("Error");
-        assert_eq!(model.checksum(), expected);
-    }
-    
-    fn check_display_format<C: Default + Display>(expected: &str) {
-        let m: C = Default::default();
-        assert_eq!(format!("{m}"), expected)
-    }
+    use super::*;
+    use crate::core::checksum::tests::*;
 
     #[test]
     fn crc32() {
@@ -85,11 +66,11 @@ mod tests {
         assert_checksum::<u32, CRC32>("Wikipedia".as_bytes(), 0xadaac02e);
         assert_checksum::<u32, CRC32>("This is great".as_bytes(), 0xc6314444);
         assert_checksum::<u32, CRC32>("sqsh".as_bytes(), 0x4a861156);
+        assert_checksum::<u32, CRC32>("".as_bytes(), 0x00000000);
     }
 
     #[test]
     fn formatting() {
         check_display_format::<CRC32>("CRC32<0x00000000>");
     }
-
 }

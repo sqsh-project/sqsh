@@ -9,4 +9,5 @@ mod duplicate;
 
 // Reexport processors on this level
 pub use adler32::Adler32;
+pub use crc32::CRC32;
 pub use duplicate::Duplicate;
