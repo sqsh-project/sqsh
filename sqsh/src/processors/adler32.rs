@@ -3,7 +3,7 @@
 //! Implementation of the Adler32 checksum algorithm as described
 //! [here](https://en.wikipedia.org/wiki/Adler-32).
 use crate::core::{Checksum, Process};
-use log::{debug, info};
+use log::{trace, info};
 use std::fmt::Display;
 
 /// Adler32 struct to save normal and aggregated sum
@@ -52,7 +52,7 @@ impl Process for Adler32 {
         for byte in source.iter() {
             self.a += *byte as u16 % u16::MAX;
             self.b += self.a % u16::MAX;
-            debug!("Adler32 Update: {}, New State: {:?}", byte, self)
+            trace!("Adler32 Update: {byte}, New State: {self:?}")
         }
         Ok(source.len())
     }

@@ -18,6 +18,7 @@ pub(crate) fn generate_file_stream<P: Process + Default>(
     Ok(stream)
 }
 
+#[allow(dead_code)]
 pub(crate) fn generate_output_filename(input: PathBuf) -> PathBuf {
     let mut tmp = input;
     tmp.set_extension("raw");
