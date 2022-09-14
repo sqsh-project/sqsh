@@ -56,7 +56,9 @@ impl Process for Adler32 {
         }
         Ok(source.len())
     }
-    fn finish(&mut self, _: &mut Vec<u8>) -> std::io::Result<usize> {
+    fn finish(&mut self, sink: &mut Vec<u8>) -> std::io::Result<usize> {
+        let result = self.to_string();
+        sink.extend(result.as_bytes());
         Ok(0)
     }
 }

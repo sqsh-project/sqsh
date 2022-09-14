@@ -24,4 +24,16 @@ pub enum Commands {
         #[clap(value_parser)]
         output: Option<PathBuf>,
     },
+    /// Calculate Adler32 checksum
+    Adler32 {
+        /// Input file
+        #[clap(value_parser)]
+        input: PathBuf,
+    },
+    /// Calculate CRC32 checksum
+    CRC32 {
+        /// Input file
+        #[clap(value_parser)]
+        input: PathBuf,
+    },
 }
