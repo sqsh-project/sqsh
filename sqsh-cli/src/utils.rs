@@ -5,6 +5,7 @@ use std::{
     path::PathBuf,
 };
 
+/// Boilerplate for generating a stream from a file to a file
 pub(crate) fn generate_file_stream<P: Process + Default>(
     input: PathBuf,
     output: PathBuf,
@@ -19,12 +20,14 @@ pub(crate) fn generate_file_stream<P: Process + Default>(
 }
 
 #[allow(dead_code)]
+/// Function to automatically change the file extension
 pub(crate) fn generate_output_filename(input: PathBuf) -> PathBuf {
     let mut tmp = input;
     tmp.set_extension("raw");
     tmp
 }
 
+/// Boilerplate for generating a stream from a file to stdout
 pub(crate) fn generate_stdout_stream<P: Process + Default>(
     input: PathBuf,
 ) -> std::io::Result<Stream<BufReader<File>, BufWriter<Stdout>, P>> {

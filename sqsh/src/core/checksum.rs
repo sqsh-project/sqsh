@@ -1,6 +1,14 @@
-pub trait Checksum {
+//! # Checksums
+//!
+//! Checksums are used to check the integrity of the data after decompression.
+//! Each Checksum has to implement the `Process` trait.
+use super::Process;
+
+/// Checksum trait for calculating the checksum from the internal state
+pub trait Checksum: Process {
     type Output;
 
+    /// Calculate the checksum from the inner state
     fn checksum(&self) -> Self::Output;
 }
 

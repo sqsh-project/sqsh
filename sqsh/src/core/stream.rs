@@ -1,3 +1,8 @@
+//! # Stream
+//!
+//! This module defines the general framework of the library.
+//! It sets up the data stream and the consumers of the data and abstracts
+//! the actual source, sink and processor inbetween.
 use crate::core::process::Process;
 use std::io::{BufRead, Result as IOResult, Write};
 
@@ -28,6 +33,7 @@ impl<B: BufRead, W: Write, P: Process> Stream<B, W, P> {
             buffer,
         }
     }
+
     /// Create a new Stream object with custom buffer size
     pub fn with_capacity(reader: B, writer: W, processor: P, capacity: usize) -> Self {
         let buffer = Vec::with_capacity(capacity);
@@ -38,6 +44,7 @@ impl<B: BufRead, W: Write, P: Process> Stream<B, W, P> {
             buffer,
         }
     }
+
     /// Consume the source and fill the sink
     pub fn consume(&mut self) -> IOResult<usize> {
         let mut consumed: usize = 0;
