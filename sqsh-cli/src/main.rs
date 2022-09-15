@@ -1,9 +1,9 @@
-mod cli;
-mod utils;
 use clap::Parser;
 use log::debug;
 use sqsh::processors::{Adler32, Duplicate, CRC32};
 use utils::{generate_file_stream, generate_stdout_stream};
+mod cli;
+mod utils;
 
 fn main() -> std::io::Result<()> {
     let args = cli::Cli::parse();

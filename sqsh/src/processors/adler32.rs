@@ -3,7 +3,7 @@
 //! Implementation of the Adler32 checksum algorithm as described
 //! [here](https://en.wikipedia.org/wiki/Adler-32).
 use crate::core::{Checksum, Process};
-use log::{trace, info};
+use log::{info, trace};
 use std::fmt::Display;
 
 /// Adler32 struct to save normal and aggregated sum

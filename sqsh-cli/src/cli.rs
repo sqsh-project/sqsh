@@ -1,6 +1,5 @@
-use std::path::PathBuf;
-
 use clap::{Parser, Subcommand};
+use std::path::PathBuf;
 
 /// Command-line Interface (CLI) for the sqsh library
 #[derive(Parser, Debug)]
@@ -10,6 +9,7 @@ pub struct Cli {
     #[clap(subcommand)]
     pub command: Commands,
 
+    /// Control verbose output (e.g. -vv [Info])
     #[clap(flatten)]
     pub verbose: clap_verbosity_flag::Verbosity,
 }

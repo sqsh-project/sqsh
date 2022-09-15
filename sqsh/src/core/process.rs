@@ -1,3 +1,8 @@
+//! # Process
+//!
+//! This module defines the processing unit of the crate. It abstracts the
+//! read and write of the data streams. It is the most integral part in the
+//! library and shared by all components.
 use std::io::Result as IOResult;
 
 /// The `Process` trait allows processing bytes from a source and
