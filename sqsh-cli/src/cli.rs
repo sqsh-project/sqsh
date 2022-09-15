@@ -9,7 +9,7 @@ pub struct Cli {
     #[clap(subcommand)]
     pub command: Commands,
 
-    /// Control verbose output (e.g. -vv [Info])
+    /// Control verbose output (e.g. -vv for info level)
     #[clap(flatten)]
     pub verbose: clap_verbosity_flag::Verbosity,
 }
@@ -22,10 +22,6 @@ pub enum Commands {
         /// Input file
         #[clap(value_parser)]
         input: PathBuf,
-
-        /// Output file
-        #[clap(value_parser)]
-        output: Option<PathBuf>,
     },
     /// Calculate Adler32 checksum
     Adler32 {
@@ -38,5 +34,19 @@ pub enum Commands {
         /// Input file
         #[clap(value_parser)]
         input: PathBuf,
+    },
+    /// En:Decode input using Classic RLE
+    ClassicRLE {
+        /// Input file
+        #[clap(value_parser)]
+        input: PathBuf,
+
+        /// Max allowed repetition which are not compressed
+        #[clap(short, long, value_parser)]
+        threshold: Option<usize>,
+
+        /// Decompress input
+        #[clap(short, long, value_parser, default_value_t = false)]
+        decompress: bool,
     },
 }
