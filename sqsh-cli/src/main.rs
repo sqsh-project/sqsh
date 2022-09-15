@@ -7,7 +7,10 @@ use utils::{generate_file_stream, generate_stdout_stream};
 
 fn main() -> std::io::Result<()> {
     let args = cli::Cli::parse();
-    debug!("{args:?}");
+    env_logger::Builder::new()
+        .filter_level(args.verbose.log_level_filter())
+        .init();
+    debug!("Configuration: {args:?}");
 
     match args.command {
         cli::Commands::Duplicate { input, output } => {
