@@ -9,6 +9,9 @@ pub struct Cli {
     /// Subcommand to be executed
     #[clap(subcommand)]
     pub command: Commands,
+
+    #[clap(flatten)]
+    pub verbose: clap_verbosity_flag::Verbosity,
 }
 
 /// Commands to be executed by the CLI
