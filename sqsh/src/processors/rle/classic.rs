@@ -26,7 +26,7 @@ impl Display for RleClassicEncoder {
     }
 }
 
-#[allow(dead_code)]
+#[allow(dead_code, clippy::assertions_on_constants)]
 impl RleClassicEncoder {
     /// Create a new classic RLE Encoder with default threshold
     pub fn new() -> Self {
@@ -126,7 +126,7 @@ impl Display for RleClassicDecoder {
     }
 }
 
-#[allow(dead_code)]
+#[allow(dead_code, clippy::assertions_on_constants)]
 impl RleClassicDecoder {
     /// Create a new classic RLE Decoder with default threshold
     pub fn new() -> Self {

@@ -126,8 +126,10 @@
 //! is a `1` than the complement of the code is choosen. Therefore, decreasing the
 //! number of runs ie. increasing the length of the last run.
 mod classic;
+mod telemetry;
 
 pub use classic::{RleClassicDecoder, RleClassicEncoder};
+pub use telemetry::{TelemetryRleDecoder, TelemetryRleEncoder};
 
 #[cfg(test)]
 mod tests {

@@ -34,8 +34,8 @@
 //!
 pub(crate) mod checksum;
 pub(crate) mod process;
-mod stream;
+pub(crate) mod stream;
 
 pub use checksum::Checksum;
 pub use process::{Process, StreamProcess};
-pub use stream::Stream;
+pub use stream::{Consume, Stream};
