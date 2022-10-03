@@ -42,16 +42,19 @@ pub enum Commands {
 #[derive(clap::ValueEnum, Clone, Debug)]
 pub enum RleMode {
     #[clap(alias = "info", alias = "Info", alias = "i")]
-    InfoByte,
+    Infobyte,
     #[clap(alias = "classic", alias = "Classic", alias = "c")]
     Classic,
+    #[clap(alias = "lossy", alias = "Lossy", alias = "l")]
+    Lossy,
 }
 
 impl Display for RleMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InfoByte => write!(f, "InfoByte"),
+            Self::Infobyte => write!(f, "Infobyte"),
             Self::Classic => write!(f, "Classic"),
+            Self::Lossy => write!(f, "Lossy"),
         }
     }
 }

@@ -72,4 +72,25 @@ pub(crate) mod tests {
 
         assert_eq!(source, decoded)
     }
+
+    pub(crate) fn roundtrip_lossy<E: Process + Default, D: From<E> + Process>(
+        source: &[u8],
+        expected: &[u8],
+    ) {
+        let mut enc: E = Default::default();
+        let mut encoded: Vec<u8> = Vec::new();
+        enc.process(source, &mut encoded).expect("Error");
+        let mut fin = Vec::<u8>::new();
+        enc.finish(&mut fin).expect("Error");
+        encoded.append(&mut fin);
+
+        let mut dec: D = D::from(enc);
+        let mut decoded: Vec<u8> = Vec::new();
+        dec.process(&encoded[..], &mut decoded).expect("Error");
+        let mut fin = Vec::<u8>::new();
+        dec.finish(&mut fin).expect("Error");
+        decoded.append(&mut fin);
+
+        assert_eq!(decoded, expected)
+    }
 }

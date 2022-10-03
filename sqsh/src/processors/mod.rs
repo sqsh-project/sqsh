@@ -12,4 +12,7 @@ mod rle;
 pub use adler32::Adler32;
 pub use crc32::CRC32;
 pub use duplicate::Duplicate;
-pub use rle::{RleClassicDecoder, RleClassicEncoder, TelemetryRleDecoder, TelemetryRleEncoder};
+pub use rle::{
+    LossyRleDecoder, LossyRleEncoder, RleClassicDecoder, RleClassicEncoder, TelemetryRleDecoder,
+    TelemetryRleEncoder,
+};

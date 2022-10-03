@@ -1,8 +1,8 @@
 use clap::Parser;
 use log::debug;
 use sqsh::processors::{
-    Adler32, Duplicate, RleClassicDecoder, RleClassicEncoder, TelemetryRleDecoder,
-    TelemetryRleEncoder, CRC32,
+    Adler32, Duplicate, LossyRleDecoder, LossyRleEncoder, RleClassicDecoder, RleClassicEncoder,
+    TelemetryRleDecoder, TelemetryRleEncoder, CRC32,
 };
 use utils::generate_stdout_stream;
 mod cli;
@@ -42,12 +42,21 @@ fn main() -> std::io::Result<()> {
                     generate_stdout_stream(processor)
                 }
             }
-            (Some(t), cli::RleMode::InfoByte) => {
+            (Some(t), cli::RleMode::Infobyte) => {
                 if decompress {
-                    let processor = TelemetryRleDecoder::new();
+                    let processor = TelemetryRleDecoder::default();
                     generate_stdout_stream(processor)
                 } else {
                     let processor = TelemetryRleEncoder::with_threshold(t as u8);
+                    generate_stdout_stream(processor)
+                }
+            }
+            (Some(t), cli::RleMode::Lossy) => {
+                if decompress {
+                    let processor = LossyRleDecoder::default();
+                    generate_stdout_stream(processor)
+                } else {
+                    let processor = LossyRleEncoder::with_threshold(t);
                     generate_stdout_stream(processor)
                 }
             }
@@ -60,12 +69,21 @@ fn main() -> std::io::Result<()> {
                     generate_stdout_stream(processor)
                 }
             }
-            (None, cli::RleMode::InfoByte) => {
+            (None, cli::RleMode::Infobyte) => {
                 if decompress {
                     let processor = TelemetryRleDecoder::default();
                     generate_stdout_stream(processor)
                 } else {
                     let processor = TelemetryRleEncoder::default();
+                    generate_stdout_stream(processor)
+                }
+            }
+            (None, cli::RleMode::Lossy) => {
+                if decompress {
+                    let processor = LossyRleDecoder::default();
+                    generate_stdout_stream(processor)
+                } else {
+                    let processor = LossyRleEncoder::default();
                     generate_stdout_stream(processor)
                 }
             }
