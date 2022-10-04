@@ -270,10 +270,10 @@ mod tests {
 
     #[test]
     fn test_roundtrip() {
-        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&vec![1, 2, 3, 4, 5, 6, 7, 8]);
-        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&vec![1, 2, 3, 4, 5, 6, 7, 9]);
-        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&vec![1, 2, 3, 4, 5, 6, 7, 18]);
-        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&vec![1, 2, 29, 4, 5, 6, 7, 18]);
-        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&vec![14, 5, 29, 4, 5, 6, 7, 18]);
+        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&[1, 2, 3, 4, 5, 6, 7, 8]);
+        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&[1, 2, 3, 4, 5, 6, 7, 9]);
+        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&[1, 2, 3, 4, 5, 6, 7, 18]);
+        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&[1, 2, 29, 4, 5, 6, 7, 18]);
+        roundtrip::<TelemetryRleEncoder, TelemetryRleDecoder>(&[14, 5, 29, 4, 5, 6, 7, 18]);
     }
 }

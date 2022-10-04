@@ -249,7 +249,7 @@ mod tests {
     #[test]
     fn test_format() {
         let rle = RleClassicEncoder::new();
-        let expected: String = format!("ClassicRLE< reps:0 max:2 sym:None >");
+        let expected: String = "ClassicRLE< reps:0 max:2 sym:None >".to_string();
 
         assert_eq!(rle.to_string(), expected);
     }

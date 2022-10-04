@@ -21,7 +21,7 @@ impl Display for LossyRleEncoder {
     }
 }
 
-#[allow(dead_code)]
+#[allow(dead_code, clippy::assertions_on_constants)]
 impl LossyRleEncoder {
     pub fn new() -> Self {
         assert!(LOSSY_RLE_THRESHOLD > 1);
