@@ -1,0 +1,31 @@
+output = "benchmarks/duplicate.json"
+hyperfine_params = [  # common hyperfine parameters for all runs
+    "--runs", "5",
+    "--warmup", "3",
+    "--parameter-list", "ifile", "benchmarks/test.raw",
+    "--parameter-list", "ofile", "/tmp/test.raw",
+]
+
+[run.duplicate_master]
+commits = [
+    "master", # prev
+]
+setup = "cargo install --path sqsh-cli"
+command = "sqsh-cli duplicate {ifile} > {ofile}"
+
+[run.duplicate_rle]
+commits = [
+    "rle", # prev
+]
+setup = "cargo install --path sqsh-cli"
+command = "sqsh-cli duplicate < {ifile} > {ofile}"
+
+
+[run.dd]
+command = "dd if={ifile} of={ofile}"
+
+[run.cp]
+command = "cp {ifile} {ofile}"
+
+[run.rsync]
+command = "rsync -a {ifile} {ofile}"
