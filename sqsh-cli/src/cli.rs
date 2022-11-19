@@ -26,9 +26,13 @@ pub enum Commands {
     CRC32,
     /// En:Decode input using RLE (two modes)
     Rle {
-        /// Max allowed repetition which are not compressed
-        #[clap(short, long, value_parser)]
-        threshold: Option<usize>,
+        /// Number of allowed repetitions which are not compressed
+        #[clap(short, long, value_parser, default_value_t = 2)]
+        repetitions: usize,
+
+        /// Allowed difference for telemetry data
+        #[clap(short, long, value_parser, default_value_t = 10)]
+        threshold: u8,
 
         #[clap(long, value_parser, default_value_t = RleMode::Classic)]
         mode: RleMode,
@@ -36,6 +40,14 @@ pub enum Commands {
         /// Decompress input
         #[clap(short, long, value_parser, default_value_t = false)]
         decompress: bool,
+
+        /// Define order of context elements for cond. rle
+        #[clap(short, long, value_parser, default_value_t = 0)]
+        order: usize,
+
+        /// Define code bit length for cond. rle
+        #[clap(short, long, value_parser, default_value_t = 8)]
+        bits: usize,
     },
 }
 
@@ -47,6 +59,8 @@ pub enum RleMode {
     Classic,
     #[clap(alias = "lossy", alias = "Lossy", alias = "l")]
     Lossy,
+    #[clap(alias = "conditional", alias = "Lossy", alias = "o")]
+    Conditional,
 }
 
 impl Display for RleMode {
@@ -55,6 +69,7 @@ impl Display for RleMode {
             Self::Infobyte => write!(f, "Infobyte"),
             Self::Classic => write!(f, "Classic"),
             Self::Lossy => write!(f, "Lossy"),
+            Self::Conditional => write!(f, "Conditional"),
         }
     }
 }

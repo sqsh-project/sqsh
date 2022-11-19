@@ -11,6 +11,7 @@ pub struct Encoder {}
 #[derive(Debug)]
 pub struct Decoder {}
 pub type ConditionalRleEncoder = ConditionalRle<Encoder>;
+pub type ConditionalRleDecoder = ConditionalRle<Decoder>;
 type CtxProbTable<T> = HashMap<Vec<T>, ProbTable<T>>;
 
 #[derive(Debug)]

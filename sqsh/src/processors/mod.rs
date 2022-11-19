@@ -13,6 +13,6 @@ pub use adler32::Adler32;
 pub use crc32::CRC32;
 pub use duplicate::Duplicate;
 pub use rle::{
-    ConditionalRleEncoder, LossyRleDecoder, LossyRleEncoder, RleClassicDecoder, RleClassicEncoder,
-    TelemetryRleDecoder, TelemetryRleEncoder,
+    ConditionalRleDecoder, ConditionalRleEncoder, LossyRleDecoder, LossyRleEncoder,
+    RleClassicDecoder, RleClassicEncoder, TelemetryRleDecoder, TelemetryRleEncoder,
 };

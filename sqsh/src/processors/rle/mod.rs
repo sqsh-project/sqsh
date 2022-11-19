@@ -131,7 +131,7 @@ mod lossy;
 mod telemetry;
 
 pub use classic::{RleClassicDecoder, RleClassicEncoder};
-pub use conditional::ConditionalRleEncoder;
+pub use conditional::{ConditionalRleDecoder, ConditionalRleEncoder};
 pub use lossy::{LossyRleDecoder, LossyRleEncoder};
 pub use telemetry::{TelemetryRleDecoder, TelemetryRleEncoder};
 

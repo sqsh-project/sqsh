@@ -1,8 +1,9 @@
 use clap::Parser;
 use log::debug;
 use sqsh::processors::{
-    Adler32, Duplicate, LossyRleDecoder, LossyRleEncoder, RleClassicDecoder, RleClassicEncoder,
-    TelemetryRleDecoder, TelemetryRleEncoder, CRC32,
+    Adler32, ConditionalRleDecoder, ConditionalRleEncoder, Duplicate, LossyRleDecoder,
+    LossyRleEncoder, RleClassicDecoder, RleClassicEncoder, TelemetryRleDecoder,
+    TelemetryRleEncoder, CRC32,
 };
 use utils::generate_stdout_stream;
 mod cli;
@@ -29,61 +30,46 @@ fn main() -> std::io::Result<()> {
             generate_stdout_stream(processor)
         }
         cli::Commands::Rle {
+            repetitions,
             threshold,
             decompress,
             mode,
-        } => match (threshold, mode) {
-            (Some(t), cli::RleMode::Classic) => {
+            order,
+            bits,
+        } => match mode {
+            cli::RleMode::Conditional => {
                 if decompress {
-                    let processor = RleClassicDecoder::with_threshold(t);
+                    let processor = ConditionalRleDecoder::with_order_with_bitlength(order, bits);
                     generate_stdout_stream(processor)
                 } else {
-                    let processor = RleClassicEncoder::with_threshold(t);
+                    let processor = ConditionalRleEncoder::with_order_with_bitlength(order, bits);
                     generate_stdout_stream(processor)
                 }
             }
-            (Some(t), cli::RleMode::Infobyte) => {
+            cli::RleMode::Classic => {
+                if decompress {
+                    let processor = RleClassicDecoder::with_threshold(repetitions);
+                    generate_stdout_stream(processor)
+                } else {
+                    let processor = RleClassicEncoder::with_threshold(repetitions);
+                    generate_stdout_stream(processor)
+                }
+            }
+            cli::RleMode::Infobyte => {
                 if decompress {
                     let processor = TelemetryRleDecoder::default();
                     generate_stdout_stream(processor)
                 } else {
-                    let processor = TelemetryRleEncoder::with_threshold(t as u8);
+                    let processor = TelemetryRleEncoder::with_threshold(threshold);
                     generate_stdout_stream(processor)
                 }
             }
-            (Some(t), cli::RleMode::Lossy) => {
+            cli::RleMode::Lossy => {
                 if decompress {
                     let processor = LossyRleDecoder::default();
                     generate_stdout_stream(processor)
                 } else {
-                    let processor = LossyRleEncoder::with_threshold(t);
-                    generate_stdout_stream(processor)
-                }
-            }
-            (None, cli::RleMode::Classic) => {
-                if decompress {
-                    let processor = RleClassicDecoder::default();
-                    generate_stdout_stream(processor)
-                } else {
-                    let processor = RleClassicEncoder::default();
-                    generate_stdout_stream(processor)
-                }
-            }
-            (None, cli::RleMode::Infobyte) => {
-                if decompress {
-                    let processor = TelemetryRleDecoder::default();
-                    generate_stdout_stream(processor)
-                } else {
-                    let processor = TelemetryRleEncoder::default();
-                    generate_stdout_stream(processor)
-                }
-            }
-            (None, cli::RleMode::Lossy) => {
-                if decompress {
-                    let processor = LossyRleDecoder::default();
-                    generate_stdout_stream(processor)
-                } else {
-                    let processor = LossyRleEncoder::default();
+                    let processor = LossyRleEncoder::with_threshold(repetitions);
                     generate_stdout_stream(processor)
                 }
             }
