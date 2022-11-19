@@ -1,32 +1,39 @@
 use crate::core::Process;
 use crate::stats::ProbTable;
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
+use std::marker::PhantomData;
 
 mod rlesortedu8;
 
+#[derive(Debug)]
+pub struct Encoder {}
+#[derive(Debug)]
+pub struct Decoder {}
+pub type ConditionalRleEncoder = ConditionalRle<Encoder>;
 type CtxProbTable<T> = HashMap<Vec<T>, ProbTable<T>>;
 
 #[derive(Debug)]
-pub struct ConditionalRleEncoder {
+pub struct ConditionalRle<M> {
+    phantom: std::marker::PhantomData<M>,
     order: usize,
     ctx_tables: CtxProbTable<u8>,
     code_table: rlesortedu8::RLEU8,
 }
 
-impl Default for ConditionalRleEncoder {
+impl<M> Default for ConditionalRle<M> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Display for ConditionalRleEncoder {
+impl<M: Debug> Display for ConditionalRle<M> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
-impl ConditionalRleEncoder {
+impl<M> ConditionalRle<M> {
     /// Create an empty `ConditionalRleEncoder`
     ///
     /// # Examples
@@ -38,7 +45,8 @@ impl ConditionalRleEncoder {
     /// assert!(rle.is_empty());
     /// ```
     pub fn new() -> Self {
-        ConditionalRleEncoder {
+        ConditionalRle {
+            phantom: PhantomData::<M>,
             ctx_tables: CtxProbTable::<u8>::new(),
             order: 1,
             code_table: rlesortedu8::RLEU8::Bit8,
@@ -56,7 +64,8 @@ impl ConditionalRleEncoder {
     /// ```
     pub fn with_bitlength(length: usize) -> Self {
         assert!(length > 0 && length <= 8);
-        ConditionalRleEncoder {
+        ConditionalRle {
+            phantom: PhantomData::<M>,
             ctx_tables: CtxProbTable::<u8>::new(),
             order: 1,
             code_table: rlesortedu8::RLEU8::with_bitlength(length),
@@ -73,7 +82,8 @@ impl ConditionalRleEncoder {
     /// assert_eq!(rle.order(), 2);
     /// ```
     pub fn with_order(order: usize) -> Self {
-        ConditionalRleEncoder {
+        ConditionalRle {
+            phantom: PhantomData::<M>,
             ctx_tables: CtxProbTable::<u8>::new(),
             order,
             code_table: rlesortedu8::RLEU8::Bit8,
@@ -92,7 +102,8 @@ impl ConditionalRleEncoder {
     /// ```
     pub fn with_order_with_bitlength(order: usize, length: usize) -> Self {
         assert!(length > 0 && length <= 8);
-        ConditionalRleEncoder {
+        ConditionalRle {
+            phantom: PhantomData::<M>,
             ctx_tables: CtxProbTable::<u8>::new(),
             order,
             code_table: rlesortedu8::RLEU8::with_bitlength(length),
@@ -152,13 +163,6 @@ impl ConditionalRleEncoder {
     }
 
     fn encode(&mut self, cx: &[u8], next: u8, sink: &mut Vec<u8>) -> std::io::Result<usize> {
-        // TODO: This encoding method is faulty.
-        // REASON: If the rank of a value is not
-        // found (i.e. symbol was never seen) then currently the symbol itself
-        // will be used as the rank. Which leads to the fact that there is a misshapen.
-        // If the symbol is small (e.g. 2) and there are >2 seen symbols (e.g. [4:6,1:3,6:3])
-        // then the symbol will be encoded like the one at rank 'symbol' e.g. 2 will be encoded
-        // like a 6.
         let encoded = self
             .ctx_tables
             .get(cx)
@@ -208,7 +212,7 @@ impl ConditionalRleEncoder {
     }
 }
 
-impl Process for ConditionalRleEncoder {
+impl Process for ConditionalRle<Encoder> {
     fn process(&mut self, bytes: &[u8], sink: &mut Vec<u8>) -> std::io::Result<usize> {
         let mut result = 0usize;
         let mut v = Vec::<u8>::new();
@@ -232,121 +236,23 @@ impl Process for ConditionalRleEncoder {
     }
 }
 
-#[derive(Debug)]
-pub struct ConditionalRleDecoder {
-    tables: CtxProbTable<u8>,
-    order: usize,
-    code: rlesortedu8::RLEU8,
-}
-
-impl Default for ConditionalRleDecoder {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Display for ConditionalRleDecoder {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-impl ConditionalRleDecoder {
-    pub fn new() -> Self {
-        ConditionalRleDecoder {
-            tables: CtxProbTable::<u8>::new(),
-            order: 1,
-            code: rlesortedu8::RLEU8::Bit8,
-        }
-    }
-    pub fn with_bitlength(length: usize) -> Self {
-        assert!(length > 0 && length <= 8);
-        ConditionalRleDecoder {
-            tables: CtxProbTable::<u8>::new(),
-            order: 1,
-            code: rlesortedu8::RLEU8::with_bitlength(length),
-        }
-    }
-    pub fn with_order(order: usize) -> Self {
-        ConditionalRleDecoder {
-            tables: CtxProbTable::<u8>::new(),
-            order,
-            code: rlesortedu8::RLEU8::Bit8,
-        }
-    }
-    pub fn with_order_with_bitlength(order: usize, length: usize) -> Self {
-        assert!(length > 0 && length <= 8);
-        ConditionalRleDecoder {
-            tables: CtxProbTable::<u8>::new(),
-            order,
-            code: rlesortedu8::RLEU8::with_bitlength(length),
-        }
-    }
-    pub fn bitlength(&self) -> usize {
-        self.code.bitlength()
-    }
-    pub fn capacity(&self) -> usize {
-        self.tables.capacity()
-    }
-    pub fn order(&self) -> usize {
-        self.order
-    }
-    pub fn is_empty(&self) -> bool {
-        self.tables.is_empty()
-    }
+impl ConditionalRle<Decoder> {
     /// Decode a value based on context and write to sink
     ///
     /// 1. Get table, 2. Get ranking, and 3. Get code
     fn decode(&mut self, cx: &[u8], val: u8, sink: &mut Vec<u8>) -> std::io::Result<u8> {
-        let decoded_val = self.code.decode(val).unwrap();
+        let decoded_val = self.code_table.decode(val).unwrap();
         let decoded = self
-            .tables
+            .ctx_tables
             .get(cx)
             .and_then(|t| t.position(decoded_val))
-            .unwrap_or(*self.code.encode(decoded_val).unwrap());
+            .unwrap_or(*self.code_table.encode(decoded_val).unwrap());
         sink.push(decoded);
         Ok(decoded)
     }
-    fn single_update(&mut self, cx: &[u8], val: u8) -> std::io::Result<usize> {
-        let updated = self.tables.get_mut(cx).and_then(|t| {
-            let v = t.insert(val);
-            Some(v)
-        });
-        match updated {
-            Some(_) => Ok(1),
-            None => {
-                let mut t = ProbTable::<u8>::new();
-                let v: Vec<u8> = (0..=u8::MAX).collect();
-                t.feed(&v);
-                t.insert(val);
-                self.tables.insert(cx.to_vec(), t);
-                Ok(1)
-            }
-        }
-    }
-
-    fn full_update(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
-        println!("Current state of decoder is {:?}", self.tables);
-        println!("Update w/ {:?}", bytes);
-        let mut result = 0usize;
-        let mut v = Vec::<u8>::new();
-        for val in bytes.iter().take(self.order) {
-            self.single_update(&v, *val)?;
-            v.push(*val);
-            result += 1;
-        }
-        for window in bytes.windows(self.order + 1) {
-            let cx = &window[..self.order];
-            let val = window[self.order];
-            self.single_update(cx, val)?;
-            result += 1;
-        }
-        println!("New state of decoder is {:?}", self.tables);
-        Ok(result)
-    }
 }
 
-impl Process for ConditionalRleDecoder {
+impl Process for ConditionalRle<Decoder> {
     fn process(&mut self, byte: &[u8], sink: &mut Vec<u8>) -> std::io::Result<usize> {
         let mut result = 0usize;
         let mut update_vector = Vec::<u8>::new();
@@ -381,7 +287,7 @@ mod tests {
 
     #[test]
     fn new() {
-        let enc = ConditionalRleEncoder::new();
+        let enc: ConditionalRle<Encoder> = ConditionalRle::new();
         assert_eq!(enc.order, 1);
         assert!(enc.ctx_tables.is_empty());
     }
@@ -389,7 +295,7 @@ mod tests {
     #[test]
     fn new_with_high_order() {
         let order = 0;
-        let enc = ConditionalRleEncoder::with_order(order);
+        let enc: ConditionalRle<Encoder> = ConditionalRle::with_order(order);
         assert_eq!(enc.order, order);
         assert!(enc.ctx_tables.is_empty());
     }
@@ -397,7 +303,7 @@ mod tests {
     #[test]
     fn encoding_easy_process() {
         let order = 4;
-        let mut enc = ConditionalRleEncoder::with_order(order);
+        let mut enc: ConditionalRle<Encoder> = ConditionalRle::with_order(order);
         let data = vec![2u8, 2, 2, 2, 2, 2, 2, 2];
 
         // Encode once
@@ -415,7 +321,7 @@ mod tests {
     #[test]
     fn encoder() {
         let order = 0;
-        let mut enc = ConditionalRleEncoder::with_order(order);
+        let mut enc: ConditionalRle<Encoder> = ConditionalRle::with_order(order);
         let source: Vec<u8> = vec![3, 4, 3, 3, 4, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 2, 1];
         let mut sink: Vec<u8> = Vec::new();
         enc.process(&source, &mut sink).unwrap();
@@ -428,12 +334,12 @@ mod tests {
         // Roundtrip with a single encoding process
         for order in 0..5 {
             let source: Vec<u8> = vec![3, 4, 3, 3, 4, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 2, 1];
-            let mut enc = ConditionalRleEncoder::with_order(order);
+            let mut enc: ConditionalRle<Encoder> = ConditionalRle::with_order(order);
             let mut encoded: Vec<u8> = Vec::new();
             enc.process(&source, &mut encoded).unwrap();
 
             let mut decoded: Vec<u8> = Vec::new();
-            let mut dec = ConditionalRleDecoder::with_order(order);
+            let mut dec: ConditionalRle<Decoder> = ConditionalRle::with_order(order);
             dec.process(&encoded, &mut decoded).unwrap();
 
             println!("{:?}", order);
@@ -448,14 +354,14 @@ mod tests {
             let split = 10usize;
 
             let mut encoded: Vec<u8> = Vec::new();
-            let mut enc = ConditionalRleEncoder::with_order(order);
+            let mut enc: ConditionalRle<Encoder> = ConditionalRle::with_order(order);
             enc.process(&source[..split], &mut encoded).unwrap();
             println!("Encoding 1: {:?}", encoded);
             enc.process(&source[split..], &mut encoded).unwrap();
             println!("Encoding 2: {:?}", encoded);
 
             let mut decoded: Vec<u8> = Vec::new();
-            let mut dec = ConditionalRleDecoder::with_order(order);
+            let mut dec: ConditionalRle<Decoder> = ConditionalRle::with_order(order);
             dec.process(&encoded[..split], &mut decoded).unwrap();
             println!("Decoding 1: {:?}", decoded);
             dec.process(&encoded[split..], &mut decoded).unwrap();
