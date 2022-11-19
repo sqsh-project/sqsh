@@ -5,13 +5,13 @@ use std::fmt::Display;
 
 mod rlesortedu8;
 
-type HashMapTable<T> = HashMap<Vec<T>, ProbTable<T>>;
+type CtxProbTable<T> = HashMap<Vec<T>, ProbTable<T>>;
 
 #[derive(Debug)]
 pub struct ConditionalRleEncoder {
-    tables: HashMapTable<u8>,
     order: usize,
-    code: rlesortedu8::RLEU8,
+    ctx_tables: CtxProbTable<u8>,
+    code_table: rlesortedu8::RLEU8,
 }
 
 impl Default for ConditionalRleEncoder {
@@ -39,9 +39,9 @@ impl ConditionalRleEncoder {
     /// ```
     pub fn new() -> Self {
         ConditionalRleEncoder {
-            tables: HashMapTable::<u8>::new(),
+            ctx_tables: CtxProbTable::<u8>::new(),
             order: 1,
-            code: rlesortedu8::RLEU8::Bit8,
+            code_table: rlesortedu8::RLEU8::Bit8,
         }
     }
     /// Create an empty `ConditionalRleEncoder` with fixed bit length
@@ -57,9 +57,9 @@ impl ConditionalRleEncoder {
     pub fn with_bitlength(length: usize) -> Self {
         assert!(length > 0 && length <= 8);
         ConditionalRleEncoder {
-            tables: HashMapTable::<u8>::new(),
+            ctx_tables: CtxProbTable::<u8>::new(),
             order: 1,
-            code: rlesortedu8::RLEU8::with_bitlength(length),
+            code_table: rlesortedu8::RLEU8::with_bitlength(length),
         }
     }
     /// Create an empty `ConditionalRleEncoder` of fixed order
@@ -74,9 +74,9 @@ impl ConditionalRleEncoder {
     /// ```
     pub fn with_order(order: usize) -> Self {
         ConditionalRleEncoder {
-            tables: HashMapTable::<u8>::new(),
+            ctx_tables: CtxProbTable::<u8>::new(),
             order,
-            code: rlesortedu8::RLEU8::Bit8,
+            code_table: rlesortedu8::RLEU8::Bit8,
         }
     }
     /// Create an empty `ConditionalRleEncoder` of fixed order and defined code length
@@ -93,9 +93,9 @@ impl ConditionalRleEncoder {
     pub fn with_order_with_bitlength(order: usize, length: usize) -> Self {
         assert!(length > 0 && length <= 8);
         ConditionalRleEncoder {
-            tables: HashMapTable::<u8>::new(),
+            ctx_tables: CtxProbTable::<u8>::new(),
             order,
-            code: rlesortedu8::RLEU8::with_bitlength(length),
+            code_table: rlesortedu8::RLEU8::with_bitlength(length),
         }
     }
     /// Return the code length of the `ConditionalRleEncoder`
@@ -109,7 +109,7 @@ impl ConditionalRleEncoder {
     /// assert_eq!(rle.bitlength(), 7);
     /// ```
     pub fn bitlength(&self) -> usize {
-        self.code.bitlength()
+        self.code_table.bitlength()
     }
     /// Return the capacity of the `ConditionalRleEncoder`
     ///
@@ -122,7 +122,7 @@ impl ConditionalRleEncoder {
     /// assert_eq!(rle.capacity(), 0);
     /// ```
     pub fn capacity(&self) -> usize {
-        self.tables.capacity()
+        self.ctx_tables.capacity()
     }
     /// Return the order of the `ConditionalRleEncoder`
     ///
@@ -148,7 +148,7 @@ impl ConditionalRleEncoder {
     /// assert_eq!(rle.is_empty(), true);
     /// ```
     pub fn is_empty(&self) -> bool {
-        self.tables.is_empty()
+        self.ctx_tables.is_empty()
     }
 
     fn encode(&mut self, cx: &[u8], next: u8, sink: &mut Vec<u8>) -> std::io::Result<usize> {
@@ -160,17 +160,17 @@ impl ConditionalRleEncoder {
         // then the symbol will be encoded like the one at rank 'symbol' e.g. 2 will be encoded
         // like a 6.
         let encoded = self
-            .tables
+            .ctx_tables
             .get(cx)
             .and_then(|t| t.rank(&next))
-            .and_then(|rank| self.code.encode(rank))
+            .and_then(|rank| self.code_table.encode(rank))
             .unwrap_or(&next);
         sink.push(*encoded);
         Ok(1)
     }
 
     fn single_update(&mut self, cx: &[u8], val: u8) -> std::io::Result<usize> {
-        let updated = self.tables.get_mut(cx).and_then(|t| {
+        let updated = self.ctx_tables.get_mut(cx).and_then(|t| {
             let v = t.insert(val);
             Some(v)
         });
@@ -181,14 +181,14 @@ impl ConditionalRleEncoder {
                 let v: Vec<u8> = (0..=u8::MAX).collect();
                 t.feed(&v);
                 t.insert(val);
-                self.tables.insert(cx.to_vec(), t);
+                self.ctx_tables.insert(cx.to_vec(), t);
                 Ok(1)
             }
         }
     }
 
     fn full_update(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
-        println!("Current state of encoder is {:?}", self.tables);
+        println!("Current state of encoder is {:?}", self.ctx_tables);
         println!("Update w/ {:?}", bytes);
         let mut result = 0usize;
         let mut v = Vec::<u8>::new();
@@ -203,7 +203,7 @@ impl ConditionalRleEncoder {
             self.single_update(cx, val)?;
             result += 1;
         }
-        println!("New state of encoder is {:?}", self.tables);
+        println!("New state of encoder is {:?}", self.ctx_tables);
         Ok(result)
     }
 }
@@ -234,7 +234,7 @@ impl Process for ConditionalRleEncoder {
 
 #[derive(Debug)]
 pub struct ConditionalRleDecoder {
-    tables: HashMapTable<u8>,
+    tables: CtxProbTable<u8>,
     order: usize,
     code: rlesortedu8::RLEU8,
 }
@@ -254,7 +254,7 @@ impl Display for ConditionalRleDecoder {
 impl ConditionalRleDecoder {
     pub fn new() -> Self {
         ConditionalRleDecoder {
-            tables: HashMapTable::<u8>::new(),
+            tables: CtxProbTable::<u8>::new(),
             order: 1,
             code: rlesortedu8::RLEU8::Bit8,
         }
@@ -262,14 +262,14 @@ impl ConditionalRleDecoder {
     pub fn with_bitlength(length: usize) -> Self {
         assert!(length > 0 && length <= 8);
         ConditionalRleDecoder {
-            tables: HashMapTable::<u8>::new(),
+            tables: CtxProbTable::<u8>::new(),
             order: 1,
             code: rlesortedu8::RLEU8::with_bitlength(length),
         }
     }
     pub fn with_order(order: usize) -> Self {
         ConditionalRleDecoder {
-            tables: HashMapTable::<u8>::new(),
+            tables: CtxProbTable::<u8>::new(),
             order,
             code: rlesortedu8::RLEU8::Bit8,
         }
@@ -277,7 +277,7 @@ impl ConditionalRleDecoder {
     pub fn with_order_with_bitlength(order: usize, length: usize) -> Self {
         assert!(length > 0 && length <= 8);
         ConditionalRleDecoder {
-            tables: HashMapTable::<u8>::new(),
+            tables: CtxProbTable::<u8>::new(),
             order,
             code: rlesortedu8::RLEU8::with_bitlength(length),
         }
@@ -383,7 +383,7 @@ mod tests {
     fn new() {
         let enc = ConditionalRleEncoder::new();
         assert_eq!(enc.order, 1);
-        assert!(enc.tables.is_empty());
+        assert!(enc.ctx_tables.is_empty());
     }
 
     #[test]
@@ -391,7 +391,7 @@ mod tests {
         let order = 0;
         let enc = ConditionalRleEncoder::with_order(order);
         assert_eq!(enc.order, order);
-        assert!(enc.tables.is_empty());
+        assert!(enc.ctx_tables.is_empty());
     }
 
     #[test]
