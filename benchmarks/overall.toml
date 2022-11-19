@@ -1,0 +1,28 @@
+output = "benchmarks/overall.json"
+hyperfine_params = [  # common hyperfine parameters for all runs
+    "--runs", "5",
+    "--warmup", "3",
+    "--parameter-list", "ifile", "benchmarks/test.raw",
+    "--parameter-list", "ofile", "/tmp/test",
+]
+
+[run.duplicate]
+command = "sqsh-cli duplicate < {ifile} > {ofile}.dup"
+
+[run.adler32]
+command = "sqsh-cli adler32 < {ifile} > {ofile}.a32"
+
+[run.crc32]
+command = "sqsh-cli crc32 < {ifile} > {ofile}.crc32"
+
+[run.rle-classic]
+command = "sqsh-cli rle --mode classic < {ifile} > {ofile}.rlec"
+
+[run.rle-info]
+command = "sqsh-cli rle --mode infobyte < {ifile} > {ofile}.rlei"
+
+[run.rle-lossy]
+command = "sqsh-cli rle --mode lossy < {ifile} > {ofile}.rlel"
+
+[run.rle-conditional]
+command = "sqsh-cli rle --mode conditional < {ifile} > {ofile}.rleco"
