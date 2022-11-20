@@ -193,8 +193,8 @@ impl<M> ConditionalRle<M> {
     }
 
     fn full_update(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
-        println!("Current state of encoder is {:?}", self.ctx_tables);
-        println!("Update w/ {:?}", bytes);
+        // println!("Current state of encoder is {:?}", self.ctx_tables);
+        // println!("Update w/ {:?}", bytes);
         let mut result = 0usize;
         let mut v = Vec::<u8>::new();
         for val in bytes.iter().take(self.order) {
@@ -208,7 +208,7 @@ impl<M> ConditionalRle<M> {
             self.single_update(cx, val)?;
             result += 1;
         }
-        println!("New state of encoder is {:?}", self.ctx_tables);
+        // println!("New state of encoder is {:?}", self.ctx_tables);
         Ok(result)
     }
 }
