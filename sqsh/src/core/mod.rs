@@ -19,10 +19,23 @@
 //! These three components define the core of the data processing in the
 //! library. The interaction of these components are organised by a `Stream`
 //! object which coordinates the whole interaction.
+//!
+//! ## Terms
+//!
+//! - A *stream* is data traveling from a source to a sink.
+//! - An *encoder* compresses a stream of data.
+//! - A *decoder* decompresses a stream of data.
+//! - A *codec* defines a pair of encoder and decoder.
+//! - An processor operating in *streaming mode* processes each byte immediately.
+//! - An processor operating in *block mode* processes the stream block by block and
+//!   encodes them separately.
+//! - The *compression factor* is the size of input stream / output stream. Higher is better.
+//! - The *compression ratio* is the size of output stream / input stream. Lower is better.
+//!
 pub(crate) mod checksum;
 pub(crate) mod process;
-mod stream;
+pub(crate) mod stream;
 
 pub use checksum::Checksum;
-pub use process::Process;
-pub use stream::Stream;
+pub use process::{Process, StreamProcess};
+pub use stream::{Consume, Stream};

@@ -7,3 +7,4 @@
 
 pub mod core;
 pub mod processors;
+pub mod stats;

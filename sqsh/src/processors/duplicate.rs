@@ -33,11 +33,11 @@ mod tests {
 
     #[test]
     fn test_duplication() {
-        test_buffered_process::<Duplicate>("Wikipedia".as_bytes(), "Wikipedia".as_bytes());
-        test_buffered_process::<Duplicate>(
+        test_process::<Duplicate>("Wikipedia".as_bytes(), "Wikipedia".as_bytes());
+        test_process::<Duplicate>(
             "Awesome-string-baby".as_bytes(),
             "Awesome-string-baby".as_bytes(),
         );
-        test_buffered_process::<Duplicate>("This is great".as_bytes(), "This is great".as_bytes());
+        test_process::<Duplicate>("This is great".as_bytes(), "This is great".as_bytes());
     }
 }

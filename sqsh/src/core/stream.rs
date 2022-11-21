@@ -44,9 +44,14 @@ impl<B: BufRead, W: Write, P: Process> Stream<B, W, P> {
             buffer,
         }
     }
+}
 
-    /// Consume the source and fill the sink
-    pub fn consume(&mut self) -> IOResult<usize> {
+pub trait Consume {
+    fn consume(&mut self) -> IOResult<usize>;
+}
+
+impl<B: BufRead, W: Write, P: Process> Consume for Stream<B, W, P> {
+    fn consume(&mut self) -> IOResult<usize> {
         let mut consumed: usize = 0;
         loop {
             let data = self.reader.fill_buf()?;

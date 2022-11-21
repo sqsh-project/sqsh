@@ -1,23 +1,8 @@
-use sqsh::core::{Process, Stream};
+use sqsh::core::{Consume, Process};
 use std::{
-    fs::File,
-    io::{BufReader, BufWriter, Stdout},
+    io::{BufReader, BufWriter},
     path::PathBuf,
 };
-
-/// Boilerplate for generating a stream from a file to a file
-pub(crate) fn generate_file_stream<P: Process + Default>(
-    input: PathBuf,
-    output: PathBuf,
-) -> std::io::Result<Stream<BufReader<File>, BufWriter<File>, P>> {
-    let i = File::open(input)?;
-    let o = File::create(output)?;
-    let bufreader = BufReader::new(i);
-    let writer = BufWriter::new(o);
-    let processor = Default::default();
-    let stream = sqsh::core::Stream::new(bufreader, writer, processor);
-    Ok(stream)
-}
 
 #[allow(dead_code)]
 /// Function to automatically change the file extension
@@ -28,14 +13,11 @@ pub(crate) fn generate_output_filename(input: PathBuf) -> PathBuf {
 }
 
 /// Boilerplate for generating a stream from a file to stdout
-pub(crate) fn generate_stdout_stream<P: Process + Default>(
-    input: PathBuf,
-) -> std::io::Result<Stream<BufReader<File>, BufWriter<Stdout>, P>> {
+pub(crate) fn generate_stdout_stream(processor: impl Process + 'static) -> Box<dyn Consume> {
     let output = std::io::stdout();
-    let i = File::open(input)?;
-    let bufreader = BufReader::new(i);
+    let input = std::io::stdin();
+    let bufreader = BufReader::new(input);
     let writer = BufWriter::new(output);
-    let processor = Default::default();
     let stream = sqsh::core::Stream::new(bufreader, writer, processor);
-    Ok(stream)
+    Box::new(stream)
 }

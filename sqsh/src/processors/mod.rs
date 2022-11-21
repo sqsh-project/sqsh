@@ -6,8 +6,13 @@
 mod adler32;
 mod crc32;
 mod duplicate;
+mod rle;
 
 // Reexport processors on this level
 pub use adler32::Adler32;
 pub use crc32::CRC32;
 pub use duplicate::Duplicate;
+pub use rle::{
+    ConditionalRleEncoder, LossyRleDecoder, LossyRleEncoder, RleClassicDecoder, RleClassicEncoder,
+    TelemetryRleDecoder, TelemetryRleEncoder,
+};
