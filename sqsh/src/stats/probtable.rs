@@ -128,7 +128,7 @@ impl<T: Countable> ProbTable<T> {
     pub fn feed<R: AsRef<[T]>>(&mut self, vals: R) {
         let vals = vals.as_ref();
         let mut local = Vec::new();
-        local.extend(vals.iter().map(|x| x.clone()));
+        local.extend(vals.iter().cloned());
         for val in local {
             self.insert(val);
         }

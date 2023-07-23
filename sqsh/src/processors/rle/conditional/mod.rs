@@ -175,10 +175,7 @@ impl<M> ConditionalRle<M> {
     }
 
     fn single_update(&mut self, cx: &[u8], val: u8) -> std::io::Result<usize> {
-        let updated = self.ctx_tables.get_mut(cx).and_then(|t| {
-            let v = t.insert(val);
-            Some(v)
-        });
+        let updated = self.ctx_tables.get_mut(cx).map(|t| t.insert(val));
         match updated {
             Some(_) => Ok(1),
             None => {
